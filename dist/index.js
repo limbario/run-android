@@ -28334,6 +28334,9 @@ async function installDependencies() {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function runInstance() {
+    process.env.LIM_TOKEN = core.getInput('token');
+    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
+    process.env.LIM_REGION = core.getInput('region');
     try {
         await installDependencies();
     }
