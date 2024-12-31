@@ -82,15 +82,22 @@ export async function runInstance(): Promise<void> {
   core.saveState('region', region)
   core.saveState('instanceName', instanceName)
 
-  console.log(`Connecting to ${instanceName} in ${region}`)
-  spawn('lim', [
-    'connect',
-    'android',
-    instanceName,
-    `--region=${region}`,
-    '--stream=false',
-    '--tunnel=true'
-  ])
+  console.log(`\nConnecting to ${instanceName} in ${region}`)
+  spawn(
+    'lim',
+    [
+      'connect',
+      'android',
+      instanceName,
+      `--region=${region}`,
+      '--stream=false',
+      '--tunnel=true'
+    ],
+    {
+      detached: true,
+      stdio: 'ignore'
+    }
+  ).unref()
 }
 
 // eslint-disable-next-line

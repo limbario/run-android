@@ -28370,7 +28370,7 @@ async function runInstance() {
     const [, region, instanceName] = urlMatch;
     core.saveState('region', region);
     core.saveState('instanceName', instanceName);
-    console.log(`Connecting to ${instanceName} in ${region}`);
+    console.log(`\nConnecting to ${instanceName} in ${region}`);
     (0, child_process_1.spawn)('lim', [
         'connect',
         'android',
@@ -28378,7 +28378,10 @@ async function runInstance() {
         `--region=${region}`,
         '--stream=false',
         '--tunnel=true'
-    ]);
+    ], {
+        detached: true,
+        stdio: 'ignore'
+    }).unref();
 }
 // eslint-disable-next-line
 runInstance();
