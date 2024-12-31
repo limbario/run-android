@@ -23,7 +23,7 @@ export async function deleteInstance(): Promise<void> {
       'delete',
       'android',
       `--region=${region}`,
-      `--instance=${instanceName}`
+      instanceName
     ])
 
     if (exitCode !== 0) {
