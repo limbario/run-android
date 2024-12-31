@@ -47,6 +47,9 @@ async function installDependencies(): Promise<void> {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function runInstance(): Promise<void> {
+  process.env.LIM_TOKEN = core.getInput('token')
+  process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
+  process.env.LIM_REGION = core.getInput('region')
   try {
     await installDependencies()
   } catch (error) {

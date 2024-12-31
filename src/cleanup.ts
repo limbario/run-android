@@ -6,6 +6,8 @@ import * as exec from '@actions/exec'
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
 export async function deleteInstance(): Promise<void> {
+  process.env.LIM_TOKEN = core.getInput('token')
+  process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
   try {
     const region = core.getState('region')
     const instanceName = core.getState('instanceName')

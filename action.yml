@@ -1,23 +1,20 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Run Android'
+description: 'Run a remote Android instance in Limbar'
+author: 'Limbar, Inc.'
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
-branding:
-  icon: 'heart'
-  color: 'red'
-
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
+  organization-id:
+    description:
+      'Organization that the Android instance will belong to. If not given, the
+      default organization from the token is used.'
+    required: false
+  region:
+    description:
+      'Region of the Android instance. The closest one is chosen if not given.'
+    required: false
+  token:
+    description: 'Token to access Limbar.'
     required: true
-    default: '1000'
-
-# Define your outputs here.
-outputs:
-  time:
-    description: 'Your output description here'
 
 runs:
   using: node20
