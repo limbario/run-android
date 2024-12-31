@@ -25687,7 +25687,7 @@ async function deleteInstance() {
             'delete',
             'android',
             `--region=${region}`,
-            `--instance=${instanceName}`
+            instanceName
         ]);
         if (exitCode !== 0) {
             throw new Error(`${stdout} ${stderr}`);

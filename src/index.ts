@@ -81,14 +81,12 @@ export async function runInstance(): Promise<void> {
   const [, region, instanceName] = urlMatch
   core.saveState('region', region)
   core.saveState('instanceName', instanceName)
-  console.log(
-    `A new Android instance ${instanceName} has been created in ${region}`
-  )
 
   console.log(`Connecting to ${instanceName} in ${region}`)
   spawn('lim', [
     'connect',
     'android',
+    instanceName,
     `--region=${region}`,
     '--stream=false',
     '--tunnel=true'

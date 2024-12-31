@@ -28370,11 +28370,11 @@ async function runInstance() {
     const [, region, instanceName] = urlMatch;
     core.saveState('region', region);
     core.saveState('instanceName', instanceName);
-    console.log(`A new Android instance ${instanceName} has been created in ${region}`);
     console.log(`Connecting to ${instanceName} in ${region}`);
     (0, child_process_1.spawn)('lim', [
         'connect',
         'android',
+        instanceName,
         `--region=${region}`,
         '--stream=false',
         '--tunnel=true'
