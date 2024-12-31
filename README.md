@@ -26,7 +26,7 @@ organization and region, and connect to it. Then you can run any commands that
 expects an Android device to be connected, such as Appium, `flutter run`,
 `gradle` commands, etc.
 
-Once the Github workflow completes, a post-action step will clean up the
+Once the GitHub workflow completes, a post-action step will clean up the
 instance.
 
 ```yaml

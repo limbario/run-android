@@ -1,3 +1,4 @@
+# checkov:skip=CKV_GHA_7: "Workflow dispatch inputs are required for version management"
 name: Release
 on:
   workflow_dispatch:
