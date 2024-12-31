@@ -42,7 +42,7 @@ jobs:
           sed -i 's|uses: limbario/run-android@.*|uses: limbario/run-android@${{ inputs.version }}|' README.md
 
       - name: Bundle
-        run: npm run bundle
+        run: npm ci && npm run bundle
 
       - name: Commit & Push version
         uses: actions-js/push@v1.5
