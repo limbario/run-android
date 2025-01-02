@@ -28382,6 +28382,19 @@ async function runInstance() {
         detached: true,
         stdio: 'ignore'
     }).unref();
+    try {
+        const { exitCode, stdout, stderr } = await exec.getExecOutput('adb', [
+            'wait-for-device'
+        ]);
+        if (exitCode !== 0) {
+            throw new Error(`failed to wait the device on adb: ${stdout} ${stderr}`);
+        }
+        console.log(`\nConnected to ${instanceName} in ${region} on adb`);
+    }
+    catch (error) {
+        if (error instanceof Error)
+            core.setFailed(`failed to wait for the device: ${error.message}`);
+    }
 }
 // eslint-disable-next-line
 runInstance();
