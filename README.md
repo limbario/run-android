@@ -31,7 +31,7 @@ instance.
 
 ```yaml
 - name: Run Android
-  uses: limbario/run-android@v0.1.1
+  uses: limbario/run-android@v0.2.0
   with:
     token: ${{ secrets.LIM_TOKEN }}
 
