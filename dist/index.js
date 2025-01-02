@@ -28306,25 +28306,31 @@ const path = __importStar(__nccwpck_require__(6928));
 const LIM_VERSION = 'v0.8.12';
 const SCRCPY_VERSION = 'v3.1';
 async function installDependencies() {
-    const scrcpyUrl = `https://github.com/Genymobile/scrcpy/releases/download/${SCRCPY_VERSION}/scrcpy-linux-x86_64-${SCRCPY_VERSION}.tar.gz`;
+    const os = process.platform === 'darwin' ? 'macos' : process.platform;
+    const classicArch = process.arch === 'x64'
+        ? 'x86_64'
+        : process.arch === 'arm64'
+            ? 'aarch64'
+            : process.arch;
+    const scrcpyUrl = `https://github.com/Genymobile/scrcpy/releases/download/${SCRCPY_VERSION}/scrcpy-${os}-${classicArch}-${SCRCPY_VERSION}.tar.gz`;
     const scrcpyTarPath = await tc.downloadTool(scrcpyUrl);
     const scrcpyExtractedPath = await tc.extractTar(scrcpyTarPath);
     await exec.exec('mv', [
-        path.join(scrcpyExtractedPath, `scrcpy-linux-x86_64-${SCRCPY_VERSION}/scrcpy`),
+        path.join(scrcpyExtractedPath, `scrcpy-${os}-${classicArch}-${SCRCPY_VERSION}/scrcpy`),
         '/usr/local/bin/scrcpy'
     ]);
     await exec.exec('mv', [
-        path.join(scrcpyExtractedPath, `scrcpy-linux-x86_64-${SCRCPY_VERSION}/scrcpy-server`),
+        path.join(scrcpyExtractedPath, `scrcpy-${os}-${classicArch}-${SCRCPY_VERSION}/scrcpy-server`),
         '/usr/local/bin/scrcpy-server'
     ]);
     await exec.exec('mv', [
-        path.join(scrcpyExtractedPath, `scrcpy-linux-x86_64-${SCRCPY_VERSION}/adb`),
+        path.join(scrcpyExtractedPath, `scrcpy-${os}-${classicArch}-${SCRCPY_VERSION}/adb`),
         '/usr/local/bin/adb'
     ]);
     await exec.exec('chmod', ['+x', '/usr/local/bin/scrcpy']);
     await exec.exec('chmod', ['+x', '/usr/local/bin/scrcpy-server']);
     await exec.exec('chmod', ['+x', '/usr/local/bin/adb']);
-    const limUrl = `https://github.com/limbario/homebrew-tap/releases/download/${LIM_VERSION}/lim-linux-amd64`;
+    const limUrl = `https://github.com/limbario/homebrew-tap/releases/download/${LIM_VERSION}/lim-${process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`;
     const limPath = await tc.downloadTool(limUrl);
     await exec.exec('mv', [limPath, '/usr/local/bin/lim']);
     await exec.exec('chmod', ['+x', '/usr/local/bin/lim']);
@@ -28342,8 +28348,10 @@ async function runInstance() {
     }
     catch (error) {
         // Fail the workflow run if an error occurs
-        if (error instanceof Error)
+        if (error instanceof Error) {
             core.setFailed(`dependency installation failed: ${error.message}`);
+            return;
+        }
     }
     // Triggering the start of the adb daemon in parallel to save time.
     (0, child_process_1.spawn)('adb', ['start-server']);
@@ -28358,16 +28366,20 @@ async function runInstance() {
         ]);
         if (exitCode !== 0) {
             throw new Error(`failed to create android instance: ${stdout} ${stderr}`);
+            return;
         }
         url = stdout.trim();
     }
     catch (error) {
-        if (error instanceof Error)
+        if (error instanceof Error) {
             core.setFailed(`failed to create android instance: ${error.message}`);
+            return;
+        }
     }
     const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/);
     if (!urlMatch) {
         throw new Error(`Failed to parse instance URL ${url}`);
+        return;
     }
     const [, region, instanceName] = urlMatch;
     core.saveState('region', region);
@@ -28390,12 +28402,15 @@ async function runInstance() {
         ]);
         if (exitCode !== 0) {
             throw new Error(`failed to wait the device on adb: ${stdout} ${stderr}`);
+            return;
         }
         console.log(`\nConnected to ${instanceName} in ${region} on adb`);
     }
     catch (error) {
-        if (error instanceof Error)
+        if (error instanceof Error) {
             core.setFailed(`failed to wait for the device: ${error.message}`);
+            return;
+        }
     }
 }
 // eslint-disable-next-line
