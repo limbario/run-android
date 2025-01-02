@@ -57,6 +57,8 @@ export async function runInstance(): Promise<void> {
     if (error instanceof Error)
       core.setFailed(`dependency installation failed: ${error.message}`)
   }
+  // Triggering the start of the adb daemon in parallel to save time.
+  spawn('adb', ['start-server'])
   let url = ''
   try {
     const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
