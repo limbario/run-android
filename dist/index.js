@@ -28296,7 +28296,6 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runInstance = runInstance;
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
 const tc = __importStar(__nccwpck_require__(3472));
@@ -28339,21 +28338,6 @@ async function installDependencies() {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function runInstance() {
-    process.env.LIM_TOKEN = core.getInput('token');
-    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
-    process.env.LIM_REGION = core.getInput('region');
-    try {
-        await installDependencies();
-    }
-    catch (error) {
-        // Fail the workflow run if an error occurs
-        if (error instanceof Error) {
-            core.setFailed(`dependency installation failed: ${error.message}`);
-            return;
-        }
-    }
-    // Triggering the start of the adb daemon in parallel to save time.
-    (0, child_process_1.spawn)('adb', ['start-server']);
     let url = '';
     try {
         const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
@@ -28365,24 +28349,22 @@ async function runInstance() {
         ]);
         if (exitCode !== 0) {
             core.setFailed(`failed to create android instance: ${stdout} ${stderr}`);
-            return;
+            return '';
         }
         url = stdout.trim();
     }
     catch (error) {
         if (error instanceof Error) {
             core.setFailed(`failed to create android instance: ${error.message}`);
-            return;
+            return '';
         }
     }
     const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/);
     if (!urlMatch) {
         core.setFailed(`Failed to parse instance URL ${url}`);
-        return;
+        return '';
     }
     const [, region, instanceName] = urlMatch;
-    core.saveState('region', region);
-    core.saveState('instanceName', instanceName);
     console.log(`\nConnecting to ${instanceName} in ${region}`);
     (0, child_process_1.spawn)('lim', [
         'connect',
@@ -28395,25 +28377,61 @@ async function runInstance() {
         detached: true,
         stdio: 'ignore'
     }).unref();
+    return region + '/' + instanceName;
+}
+async function runInstances() {
+    process.env.LIM_TOKEN = core.getInput('token');
+    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
+    process.env.LIM_REGION = core.getInput('region');
+    const count = parseInt(core.getInput('count'));
     try {
-        const { exitCode, stdout, stderr } = await exec.getExecOutput('adb', [
-            'wait-for-device'
-        ]);
-        if (exitCode !== 0) {
-            core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`);
-            return;
-        }
-        console.log(`\nConnected to ${instanceName} in ${region} on adb`);
+        await installDependencies();
     }
     catch (error) {
+        // Fail the workflow run if an error occurs
         if (error instanceof Error) {
-            core.setFailed(`failed to wait for the device: ${error.message}`);
+            core.setFailed(`dependency installation failed: ${error.message}`);
             return;
         }
+    }
+    // Triggering the start of the adb daemon in parallel to save time.
+    (0, child_process_1.spawn)('adb', ['start-server']);
+    for (let i = 0; i < count; i++) {
+        try {
+            const instance = await runInstance();
+            core.saveState('instances', core.getState('instances') + ',' + instance);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                core.setFailed(`failed to create android instance: ${error.message}`);
+                return;
+            }
+        }
+    }
+    // Wait for all devices to be connected
+    const maxRetries = 30; // 30 seconds timeout
+    let retryCount = 0;
+    let hosts = [];
+    while (retryCount < maxRetries) {
+        const devices = await exec.getExecOutput('adb', ['devices']);
+        hosts = devices.stdout
+            .split('\n')
+            .filter(line => line.includes('localhost'));
+        if (hosts.length === count) {
+            console.log(`\nConnected to ${hosts.length} devices on adb`);
+            break;
+        }
+        console.log(`Waiting for devices... (${hosts.length}/${count})`);
+        await new Promise(resolve => setTimeout(resolve, 200));
+        retryCount++;
+    }
+    if (hosts.length < count) {
+        core.setFailed(`Timeout: Only ${hosts.length}/${count} devices connected to adb`);
+        return;
     }
 }
 // eslint-disable-next-line
-runInstance();
+runInstances();
 
 
 /***/ }),
