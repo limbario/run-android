@@ -28399,7 +28399,8 @@ async function runInstances() {
     for (let i = 0; i < count; i++) {
         try {
             const instance = await runInstance();
-            core.saveState('instances', core.getState('instances') + ',' + instance);
+            const existingInstances = core.getState('instances');
+            core.saveState('instances', existingInstances + `${existingInstances !== '' ? ',' : ''}` + instance);
         }
         catch (error) {
             if (error instanceof Error) {
