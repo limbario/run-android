@@ -62,6 +62,25 @@ jobs:
       - name: List devices
         run: adb devices
 
+  test-action-linux-multiple:
+    name: GitHub Actions Test on Linux runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          token: ${{ secrets.LIM_TOKEN }}
+          count: 3
+
+      - name: List devices
+        run: adb devices
+
   test-action-macos:
     name: GitHub Actions Test on macOS runner
     runs-on: macos-latest
