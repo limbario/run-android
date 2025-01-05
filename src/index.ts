@@ -4,8 +4,7 @@ import * as tc from '@actions/tool-cache'
 import { spawn } from 'child_process'
 import * as path from 'path'
 
-// Do not manually change these versions, they are set as part of the release process.
-const LIM_VERSION = 'v0.8.12'
+const LIM_VERSION = 'v0.8.13'
 const SCRCPY_VERSION = 'v3.1'
 
 async function installDependencies(): Promise<void> {
