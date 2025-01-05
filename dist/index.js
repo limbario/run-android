@@ -28416,7 +28416,10 @@ async function runInstances() {
     let retryCount = 0;
     let hosts = [];
     while (retryCount < maxRetries) {
-        const devices = await exec.getExecOutput('adb', ['devices']);
+        const devices = await exec.getExecOutput('adb', ['devices'], {
+            outStream: undefined,
+            errStream: undefined
+        });
         hosts = devices.stdout
             .split('\n')
             .filter(line => line.includes('localhost') && line.includes('device'));

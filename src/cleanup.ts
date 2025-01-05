@@ -31,12 +31,14 @@ async function deleteInstance(
       core.warning('No instance information found to cleanup')
       return
     }
-    const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
-      'delete',
-      'android',
-      `--region=${region}`,
-      instanceName
-    ])
+    const { exitCode, stdout, stderr } = await exec.getExecOutput(
+      'lim',
+      ['delete', 'android', `--region=${region}`, instanceName],
+      {
+        outStream: undefined,
+        errStream: undefined
+      }
+    )
 
     if (exitCode !== 0) {
       throw new Error(
