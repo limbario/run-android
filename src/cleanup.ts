@@ -5,20 +5,22 @@ async function deleteInstances(): Promise<void> {
   process.env.LIM_TOKEN = core.getInput('token')
   process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
   const instances = core.getState('instances')
-  instances.split(',').forEach(async instance => {
-    if (!instance.includes('/')) {
-      return
-    }
-    const [region, instanceName] = instance.split('/')
-    await deleteInstance(region, instanceName)
-  })
+  await Promise.all(
+    instances.split(',').map(async instance => {
+      if (!instance.includes('/')) {
+        return
+      }
+      const [region, instanceName] = instance.split('/')
+      return deleteInstance(region, instanceName)
+    })
+  )
 }
 
 /**
  * The cleanup function for the action.
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
-export async function deleteInstance(
+async function deleteInstance(
   instanceName: string,
   region: string
 ): Promise<void> {

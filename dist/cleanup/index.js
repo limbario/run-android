@@ -25665,20 +25665,19 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.deleteInstance = deleteInstance;
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
 async function deleteInstances() {
     process.env.LIM_TOKEN = core.getInput('token');
     process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
     const instances = core.getState('instances');
-    instances.split(',').forEach(async (instance) => {
+    await Promise.all(instances.split(',').map(async (instance) => {
         if (!instance.includes('/')) {
             return;
         }
         const [region, instanceName] = instance.split('/');
-        await deleteInstance(region, instanceName);
-    });
+        return deleteInstance(region, instanceName);
+    }));
 }
 /**
  * The cleanup function for the action.

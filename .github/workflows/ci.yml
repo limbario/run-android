@@ -45,7 +45,7 @@ jobs:
         run: npm run ci-test
 
   test-action-linux:
-    name: GitHub Actions Test on Linux runner
+    name: Linux runner
     runs-on: ubuntu-latest
 
     steps:
@@ -63,7 +63,7 @@ jobs:
         run: adb devices
 
   test-action-linux-multiple:
-    name: GitHub Actions Test on Linux runner
+    name: Multiple instances
     runs-on: ubuntu-latest
 
     steps:
@@ -82,7 +82,7 @@ jobs:
         run: adb devices
 
   test-action-macos:
-    name: GitHub Actions Test on macOS runner
+    name: macOS runner
     runs-on: macos-latest
 
     steps:
