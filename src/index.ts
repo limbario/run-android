@@ -81,7 +81,7 @@ export async function runInstance(): Promise<void> {
       '--output=url'
     ])
     if (exitCode !== 0) {
-      throw new Error(`failed to create android instance: ${stdout} ${stderr}`)
+      core.setFailed(`failed to create android instance: ${stdout} ${stderr}`)
       return
     }
     url = stdout.trim()
@@ -93,7 +93,7 @@ export async function runInstance(): Promise<void> {
   }
   const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/)
   if (!urlMatch) {
-    throw new Error(`Failed to parse instance URL ${url}`)
+    core.setFailed(`Failed to parse instance URL ${url}`)
     return
   }
   const [, region, instanceName] = urlMatch
@@ -122,7 +122,7 @@ export async function runInstance(): Promise<void> {
       'wait-for-device'
     ])
     if (exitCode !== 0) {
-      throw new Error(`failed to wait the device on adb: ${stdout} ${stderr}`)
+      core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`)
       return
     }
     console.log(`\nConnected to ${instanceName} in ${region} on adb`)

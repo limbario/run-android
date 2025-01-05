@@ -28302,8 +28302,7 @@ const exec = __importStar(__nccwpck_require__(5236));
 const tc = __importStar(__nccwpck_require__(3472));
 const child_process_1 = __nccwpck_require__(5317);
 const path = __importStar(__nccwpck_require__(6928));
-// Do not manually change these versions, they are set as part of the release process.
-const LIM_VERSION = 'v0.8.12';
+const LIM_VERSION = 'v0.8.13';
 const SCRCPY_VERSION = 'v3.1';
 async function installDependencies() {
     const os = process.platform === 'darwin' ? 'macos' : process.platform;
@@ -28365,7 +28364,7 @@ async function runInstance() {
             '--output=url'
         ]);
         if (exitCode !== 0) {
-            throw new Error(`failed to create android instance: ${stdout} ${stderr}`);
+            core.setFailed(`failed to create android instance: ${stdout} ${stderr}`);
             return;
         }
         url = stdout.trim();
@@ -28378,7 +28377,7 @@ async function runInstance() {
     }
     const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/);
     if (!urlMatch) {
-        throw new Error(`Failed to parse instance URL ${url}`);
+        core.setFailed(`Failed to parse instance URL ${url}`);
         return;
     }
     const [, region, instanceName] = urlMatch;
@@ -28401,7 +28400,7 @@ async function runInstance() {
             'wait-for-device'
         ]);
         if (exitCode !== 0) {
-            throw new Error(`failed to wait the device on adb: ${stdout} ${stderr}`);
+            core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`);
             return;
         }
         console.log(`\nConnected to ${instanceName} in ${region} on adb`);
