@@ -25668,16 +25668,24 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deleteInstance = deleteInstance;
 const core = __importStar(__nccwpck_require__(7484));
 const exec = __importStar(__nccwpck_require__(5236));
+async function deleteInstances() {
+    process.env.LIM_TOKEN = core.getInput('token');
+    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
+    const instances = core.getState('instances');
+    instances.split(',').forEach(async (instance) => {
+        if (!instance.includes('/')) {
+            return;
+        }
+        const [region, instanceName] = instance.split('/');
+        await deleteInstance(region, instanceName);
+    });
+}
 /**
  * The cleanup function for the action.
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
-async function deleteInstance() {
-    process.env.LIM_TOKEN = core.getInput('token');
-    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
+async function deleteInstance(instanceName, region) {
     try {
-        const region = core.getState('region');
-        const instanceName = core.getState('instanceName');
         if (!region || !instanceName) {
             core.warning('No instance information found to cleanup');
             return;
@@ -25703,7 +25711,7 @@ async function deleteInstance() {
     }
 }
 // eslint-disable-next-line
-deleteInstance();
+deleteInstances();
 
 
 /***/ }),

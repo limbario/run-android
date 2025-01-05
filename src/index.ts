@@ -52,14 +52,11 @@ async function installDependencies(): Promise<void> {
   await exec.exec('chmod', ['+x', '/usr/local/bin/lim'])
 }
 
-/**
- * The main function for the action.
- * @returns {Promise<void>} Resolves when the action is complete.
- */
-export async function runInstance(): Promise<void> {
+async function runInstances(): Promise<void> {
   process.env.LIM_TOKEN = core.getInput('token')
   process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
   process.env.LIM_REGION = core.getInput('region')
+  const count = parseInt(core.getInput('count'))
   try {
     await installDependencies()
   } catch (error) {
@@ -71,6 +68,24 @@ export async function runInstance(): Promise<void> {
   }
   // Triggering the start of the adb daemon in parallel to save time.
   spawn('adb', ['start-server'])
+  for (let i = 0; i < count; i++) {
+    try {
+      const instance = await runInstance()
+      core.saveState('instances', core.getState('instances') + ',' + instance)
+    } catch (error) {
+      if (error instanceof Error) {
+        core.setFailed(`failed to create android instance: ${error.message}`)
+        return
+      }
+    }
+  }
+}
+
+/**
+ * The main function for the action.
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+export async function runInstance(): Promise<string> {
   let url = ''
   try {
     const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
@@ -82,24 +97,21 @@ export async function runInstance(): Promise<void> {
     ])
     if (exitCode !== 0) {
       core.setFailed(`failed to create android instance: ${stdout} ${stderr}`)
-      return
+      return ''
     }
     url = stdout.trim()
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(`failed to create android instance: ${error.message}`)
-      return
+      return ''
     }
   }
   const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/)
   if (!urlMatch) {
     core.setFailed(`Failed to parse instance URL ${url}`)
-    return
+    return ''
   }
   const [, region, instanceName] = urlMatch
-  core.saveState('region', region)
-  core.saveState('instanceName', instanceName)
-
   console.log(`\nConnecting to ${instanceName} in ${region}`)
   spawn(
     'lim',
@@ -123,16 +135,17 @@ export async function runInstance(): Promise<void> {
     ])
     if (exitCode !== 0) {
       core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`)
-      return
+      return ''
     }
     console.log(`\nConnected to ${instanceName} in ${region} on adb`)
   } catch (error) {
     if (error instanceof Error) {
       core.setFailed(`failed to wait for the device: ${error.message}`)
-      return
+      return ''
     }
   }
+  return region + '/' + instanceName
 }
 
 // eslint-disable-next-line
-runInstance()
+runInstances()
