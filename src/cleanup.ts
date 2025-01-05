@@ -35,17 +35,15 @@ async function deleteInstance(
       'lim',
       ['delete', 'android', `--region=${region}`, instanceName],
       {
-        outStream: undefined,
-        errStream: undefined
+        silent: true
       }
     )
-
+    core.info(`Deleted instance ${instanceName} in region ${region}`)
     if (exitCode !== 0) {
       throw new Error(
         `failed to delete ${instanceName} in region ${region}: ${stdout} ${stderr}`
       )
     }
-    core.info(`Deleted instance ${instanceName} in region ${region}`)
   } catch (error) {
     if (error instanceof Error) {
       // Use warning instead of setFailed for cleanup errors

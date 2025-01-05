@@ -28417,8 +28417,7 @@ async function runInstances() {
     let hosts = [];
     while (retryCount < maxRetries) {
         const devices = await exec.getExecOutput('adb', ['devices'], {
-            outStream: undefined,
-            errStream: undefined
+            silent: true
         });
         hosts = devices.stdout
             .split('\n')
