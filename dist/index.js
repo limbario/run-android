@@ -28363,6 +28363,36 @@ async function runInstances() {
             }
         }
     }
+    const devices = await exec.getExecOutput('adb', ['devices']);
+    const hosts = devices.stdout
+        .split('\n')
+        .filter(line => line.includes('localhost'))
+        .map(line => line.split('\t')[0]);
+    if (hosts.length === 0) {
+        core.setFailed('No devices found on adb');
+        return;
+    }
+    console.log(`\nConnected to ${hosts.length} devices on adb`);
+    await Promise.all(hosts.map(async (host) => {
+        try {
+            const { exitCode, stdout, stderr } = await exec.getExecOutput('adb', [
+                '-s',
+                host,
+                'wait-for-device'
+            ]);
+            if (exitCode !== 0) {
+                core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`);
+                return '';
+            }
+            console.log(`\n${host} is ready`);
+        }
+        catch (error) {
+            if (error instanceof Error) {
+                core.setFailed(`failed to wait for the device: ${error.message}`);
+                return '';
+            }
+        }
+    }));
 }
 /**
  * The main function for the action.
@@ -28408,22 +28438,6 @@ async function runInstance() {
         detached: true,
         stdio: 'ignore'
     }).unref();
-    try {
-        const { exitCode, stdout, stderr } = await exec.getExecOutput('adb', [
-            'wait-for-device'
-        ]);
-        if (exitCode !== 0) {
-            core.setFailed(`failed to wait the device on adb: ${stdout} ${stderr}`);
-            return '';
-        }
-        console.log(`\nConnected to ${instanceName} in ${region} on adb`);
-    }
-    catch (error) {
-        if (error instanceof Error) {
-            core.setFailed(`failed to wait for the device: ${error.message}`);
-            return '';
-        }
-    }
     return region + '/' + instanceName;
 }
 // eslint-disable-next-line
