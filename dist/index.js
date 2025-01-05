@@ -28396,19 +28396,21 @@ async function runInstances() {
     }
     // Triggering the start of the adb daemon in parallel to save time.
     (0, child_process_1.spawn)('adb', ['start-server']);
+    let instances = '';
     for (let i = 0; i < count; i++) {
         try {
             const instance = await runInstance();
-            const existingInstances = core.getState('instances');
-            core.saveState('instances', existingInstances + `${existingInstances !== '' ? ',' : ''}` + instance);
+            instances += `${instances !== '' ? ',' : ''}` + instance;
         }
         catch (error) {
+            core.saveState('instances', instances);
             if (error instanceof Error) {
                 core.setFailed(`failed to create android instance: ${error.message}`);
                 return;
             }
         }
     }
+    core.saveState('instances', instances);
     // Wait for all devices to be connected
     const maxRetries = 30; // 30 seconds timeout
     let retryCount = 0;
@@ -28417,7 +28419,7 @@ async function runInstances() {
         const devices = await exec.getExecOutput('adb', ['devices']);
         hosts = devices.stdout
             .split('\n')
-            .filter(line => line.includes('localhost'));
+            .filter(line => line.includes('localhost') && line.includes('device'));
         if (hosts.length === count) {
             console.log(`\nConnected to ${hosts.length} devices on adb`);
             break;
