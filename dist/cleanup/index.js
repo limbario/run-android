@@ -25671,6 +25671,7 @@ async function deleteInstances() {
     process.env.LIM_TOKEN = core.getInput('token');
     process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
     const instances = core.getState('instances');
+    core.info(`Deleting instances: ${instances}`);
     await Promise.all(instances.split(',').map(async (instance) => {
         if (!instance.includes('/')) {
             return;
@@ -25678,28 +25679,25 @@ async function deleteInstances() {
         const [region, instanceName] = instance.split('/');
         return deleteInstance(region, instanceName);
     }));
+    core.info('Successfully deleted all instances');
 }
 /**
  * The cleanup function for the action.
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
-async function deleteInstance(instanceName, region) {
+async function deleteInstance(region, instanceName) {
     try {
         if (!region || !instanceName) {
             core.warning('No instance information found to cleanup');
             return;
         }
-        core.info(`Cleaning up instance ${instanceName} in region ${region}`);
-        const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
-            'delete',
-            'android',
-            `--region=${region}`,
-            instanceName
-        ]);
+        const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', ['delete', 'android', `--region=${region}`, instanceName], {
+            silent: true
+        });
+        core.info(`Deleted instance ${instanceName} in region ${region}`);
         if (exitCode !== 0) {
-            throw new Error(`${stdout} ${stderr}`);
+            throw new Error(`failed to delete ${instanceName} in region ${region}: ${stdout} ${stderr}`);
         }
-        core.info('Successfully cleaned up Android instance');
     }
     catch (error) {
         if (error instanceof Error) {
