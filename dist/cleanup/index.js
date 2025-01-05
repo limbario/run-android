@@ -25683,7 +25683,7 @@ async function deleteInstances() {
  * The cleanup function for the action.
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
-async function deleteInstance(instanceName, region) {
+async function deleteInstance(region, instanceName) {
     try {
         if (!region || !instanceName) {
             core.warning('No instance information found to cleanup');

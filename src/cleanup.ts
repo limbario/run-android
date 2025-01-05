@@ -21,8 +21,8 @@ async function deleteInstances(): Promise<void> {
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
 async function deleteInstance(
-  instanceName: string,
-  region: string
+  region: string,
+  instanceName: string
 ): Promise<void> {
   try {
     if (!region || !instanceName) {
