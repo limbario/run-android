@@ -1,20 +1,25 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
+import { Instance } from './index'
+
+process.env.LIM_TOKEN = core.getInput('token')
+
 async function deleteInstances(): Promise<void> {
-  process.env.LIM_TOKEN = core.getInput('token')
-  process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
-  const instances = core.getState('instances')
-  core.info(`Deleting instances: ${instances}`)
-  await Promise.all(
-    instances.split(',').map(async instance => {
-      if (!instance.includes('/')) {
-        return
-      }
-      const [region, instanceName] = instance.split('/')
-      return deleteInstance(region, instanceName)
-    })
+  const instances = JSON.parse(core.getState('instances') ?? []) as [Instance]
+  core.info(
+    `Deleting instances: \n${instances.map(i => i.organizationId + '/' + i.region + '/' + i.name).join('\n')}`
   )
+  try {
+    await Promise.all(instances.map(deleteInstance))
+  } catch (error) {
+    // Fail the workflow run if an error occurs
+    if (error instanceof Error) {
+      core.setFailed(`failed to delete instances: ${error.message}`)
+      return
+    }
+    throw error
+  }
   core.info('Successfully deleted all instances')
 }
 
@@ -22,34 +27,25 @@ async function deleteInstances(): Promise<void> {
  * The cleanup function for the action.
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
-async function deleteInstance(
-  region: string,
-  instanceName: string
-): Promise<void> {
-  try {
-    if (!region || !instanceName) {
-      core.warning('No instance information found to cleanup')
-      return
+async function deleteInstance(instance: Instance): Promise<void> {
+  const { exitCode, stdout, stderr } = await exec.getExecOutput(
+    'lim',
+    [
+      'delete',
+      'android',
+      `--region=${instance.region}`,
+      `--organization-id=${instance.organizationId}`,
+      instance.name
+    ],
+    {
+      silent: true
     }
-    const { exitCode, stdout, stderr } = await exec.getExecOutput(
-      'lim',
-      ['delete', 'android', `--region=${region}`, instanceName],
-      {
-        silent: true
-      }
+  )
+  core.info(`Deleted instance ${instance.name} in region ${instance.region}`)
+  if (exitCode !== 0) {
+    throw new Error(
+      `failed to delete ${instance.name} in region ${instance.region}: ${stdout} ${stderr}`
     )
-    core.info(`Deleted instance ${instanceName} in region ${region}`)
-    if (exitCode !== 0) {
-      throw new Error(
-        `failed to delete ${instanceName} in region ${region}: ${stdout} ${stderr}`
-      )
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      // Use warning instead of setFailed for cleanup errors
-      // This prevents cleanup errors from failing the workflow if the main action succeeded
-      core.warning(`Failed to delete android instance: ${error.message}`)
-    }
   }
 }
 
