@@ -4,8 +4,12 @@ import * as tc from '@actions/tool-cache'
 import { spawn } from 'child_process'
 import * as path from 'path'
 
-const LIM_VERSION = 'v0.8.13'
+const LIM_VERSION = 'v0.9.0'
 const SCRCPY_VERSION = 'v3.1'
+
+process.env.LIM_TOKEN = core.getInput('token')
+process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
+process.env.LIM_REGION = core.getInput('region')
 
 async function installDependencies(): Promise<void> {
   const os = process.platform === 'darwin' ? 'macos' : process.platform
@@ -52,45 +56,32 @@ async function installDependencies(): Promise<void> {
   await exec.exec('chmod', ['+x', '/usr/local/bin/lim'])
 }
 
+export type Instance = { name: string; region: string; organizationId: string }
+
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-async function runInstance(): Promise<string> {
-  let url = ''
-  try {
-    const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
-      'run',
-      'android',
-      '--tunnel=false',
-      '--stream=false',
-      '--output=url'
-    ])
-    if (exitCode !== 0) {
-      core.setFailed(`failed to create android instance: ${stdout} ${stderr}`)
-      return ''
-    }
-    url = stdout.trim()
-  } catch (error) {
-    if (error instanceof Error) {
-      core.setFailed(`failed to create android instance: ${error.message}`)
-      return ''
-    }
+async function runInstance(): Promise<Instance> {
+  const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
+    'run',
+    'android',
+    '--tunnel=false',
+    '--stream=false',
+    '--output=json'
+  ])
+  if (exitCode !== 0) {
+    throw new Error(`failed to create android instance: ${stdout} ${stderr}`)
   }
-  const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/)
-  if (!urlMatch) {
-    core.setFailed(`Failed to parse instance URL ${url}`)
-    return ''
-  }
-  const [, region, instanceName] = urlMatch
-  console.log(`\nConnecting to ${instanceName} in ${region}`)
+  const instance = JSON.parse(stdout.trim()) as Instance
+  console.log(`\nConnecting to ${instance.name} in ${instance.region}`)
   spawn(
     'lim',
     [
       'connect',
       'android',
-      instanceName,
-      `--region=${region}`,
+      instance.name,
+      `--region=${instance.region}`,
       '--stream=false',
       '--tunnel=true'
     ],
@@ -99,13 +90,10 @@ async function runInstance(): Promise<string> {
       stdio: 'ignore'
     }
   ).unref()
-  return region + '/' + instanceName
+  return instance
 }
 
 async function runInstances(): Promise<void> {
-  process.env.LIM_TOKEN = core.getInput('token')
-  process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id')
-  process.env.LIM_REGION = core.getInput('region')
   const count = parseInt(core.getInput('count'))
   try {
     await installDependencies()
@@ -118,11 +106,10 @@ async function runInstances(): Promise<void> {
   }
   // Triggering the start of the adb daemon in parallel to save time.
   spawn('adb', ['start-server'])
-  let instances = ''
+  const instances = []
   for (let i = 0; i < count; i++) {
     try {
-      const instance = await runInstance()
-      instances += `${instances !== '' ? ',' : ''}` + instance
+      instances.push(await runInstance())
     } catch (error) {
       core.saveState('instances', instances)
       if (error instanceof Error) {
@@ -133,7 +120,8 @@ async function runInstances(): Promise<void> {
   }
   core.saveState('instances', instances)
   // Wait for all devices to be connected
-  const maxRetries = 30 // 30 seconds timeout
+  const interval = 200
+  const maxRetries = (30 * 1000) / interval // 30 seconds timeout
   let retryCount = 0
   let hosts: string[] = []
 
@@ -151,7 +139,7 @@ async function runInstances(): Promise<void> {
     }
 
     console.log(`Waiting for devices... (${hosts.length}/${count})`)
-    await new Promise(resolve => setTimeout(resolve, 200))
+    await new Promise(resolve => setTimeout(resolve, interval))
     retryCount++
   }
 

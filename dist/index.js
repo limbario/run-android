@@ -28301,8 +28301,11 @@ const exec = __importStar(__nccwpck_require__(5236));
 const tc = __importStar(__nccwpck_require__(3472));
 const child_process_1 = __nccwpck_require__(5317);
 const path = __importStar(__nccwpck_require__(6928));
-const LIM_VERSION = 'v0.8.13';
+const LIM_VERSION = 'v0.9.0';
 const SCRCPY_VERSION = 'v3.1';
+process.env.LIM_TOKEN = core.getInput('token');
+process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
+process.env.LIM_REGION = core.getInput('region');
 async function installDependencies() {
     const os = process.platform === 'darwin' ? 'macos' : process.platform;
     const classicArch = process.arch === 'x64'
@@ -28338,51 +28341,32 @@ async function installDependencies() {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function runInstance() {
-    let url = '';
-    try {
-        const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
-            'run',
-            'android',
-            '--tunnel=false',
-            '--stream=false',
-            '--output=url'
-        ]);
-        if (exitCode !== 0) {
-            core.setFailed(`failed to create android instance: ${stdout} ${stderr}`);
-            return '';
-        }
-        url = stdout.trim();
+    const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
+        'run',
+        'android',
+        '--tunnel=false',
+        '--stream=false',
+        '--output=json'
+    ]);
+    if (exitCode !== 0) {
+        throw new Error(`failed to create android instance: ${stdout} ${stderr}`);
     }
-    catch (error) {
-        if (error instanceof Error) {
-            core.setFailed(`failed to create android instance: ${error.message}`);
-            return '';
-        }
-    }
-    const urlMatch = url.match(/https:\/\/([^.]+).*\/instances\/([^/]+)$/);
-    if (!urlMatch) {
-        core.setFailed(`Failed to parse instance URL ${url}`);
-        return '';
-    }
-    const [, region, instanceName] = urlMatch;
-    console.log(`\nConnecting to ${instanceName} in ${region}`);
+    const instance = JSON.parse(stdout.trim());
+    console.log(`\nConnecting to ${instance.name} in ${instance.region}`);
     (0, child_process_1.spawn)('lim', [
         'connect',
         'android',
-        instanceName,
-        `--region=${region}`,
+        instance.name,
+        `--region=${instance.region}`,
         '--stream=false',
         '--tunnel=true'
     ], {
         detached: true,
         stdio: 'ignore'
     }).unref();
-    return region + '/' + instanceName;
+    return instance;
 }
 async function runInstances() {
-    process.env.LIM_TOKEN = core.getInput('token');
-    process.env.LIM_ORGANIZATION_ID = core.getInput('organization-id');
-    process.env.LIM_REGION = core.getInput('region');
     const count = parseInt(core.getInput('count'));
     try {
         await installDependencies();
@@ -28396,11 +28380,10 @@ async function runInstances() {
     }
     // Triggering the start of the adb daemon in parallel to save time.
     (0, child_process_1.spawn)('adb', ['start-server']);
-    let instances = '';
+    const instances = [];
     for (let i = 0; i < count; i++) {
         try {
-            const instance = await runInstance();
-            instances += `${instances !== '' ? ',' : ''}` + instance;
+            instances.push(await runInstance());
         }
         catch (error) {
             core.saveState('instances', instances);
@@ -28412,7 +28395,8 @@ async function runInstances() {
     }
     core.saveState('instances', instances);
     // Wait for all devices to be connected
-    const maxRetries = 30; // 30 seconds timeout
+    const interval = 200;
+    const maxRetries = (30 * 1000) / interval; // 30 seconds timeout
     let retryCount = 0;
     let hosts = [];
     while (retryCount < maxRetries) {
@@ -28427,7 +28411,7 @@ async function runInstances() {
             break;
         }
         console.log(`Waiting for devices... (${hosts.length}/${count})`);
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, interval));
         retryCount++;
     }
     if (hosts.length < count) {
