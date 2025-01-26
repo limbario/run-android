@@ -1,6 +1,11 @@
 name: 'Run Android'
-description: 'Run a remote Android instance in Limbar'
+description:
+  'Run unlimited remote Android emulator instances in parallel for automated app
+  testing'
 author: 'Limbar, Inc.'
+branding:
+  icon: smartphone
+  color: blue
 
 inputs:
   organization-id:
