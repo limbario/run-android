@@ -4,9 +4,11 @@ Run this action to create unlimited remote Android emulator instances in
 [Limbar](https://limbar.io) so that you can test all your automated UI tests in
 parallel.
 
+<!-- markdownlint-disable MD033 MD013 -->
 <p align="center">
   <img src="android-screen-macos.webp" alt="limbar.io online android emulator instance used in mobile app testing" title="Limbar emulator instance used in mobile app testing" width="50%">
 </p>
+<!-- markdownlint-enable MD033 MD013 -->
 
 ## Inputs
 
