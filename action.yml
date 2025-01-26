@@ -1,7 +1,6 @@
-name: 'Run Android'
+name: 'Android Emulator Fleet'
 description:
-  'Run unlimited remote Android emulator instances in parallel for automated app
-  testing'
+  'Run as many Android emulators as your automated app tests need in parallel.'
 author: 'Limbar, Inc.'
 branding:
   icon: smartphone
