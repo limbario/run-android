@@ -28,19 +28,13 @@ async function deleteInstances(): Promise<void> {
  * @returns {Promise<void>} Resolves when the cleanup is complete.
  */
 async function deleteInstance(instance: Instance): Promise<void> {
-  const { exitCode, stdout, stderr } = await exec.getExecOutput(
-    'lim',
-    [
-      'delete',
-      'android',
-      `--region=${instance.region}`,
-      `--organization-id=${instance.organizationId}`,
-      instance.name
-    ],
-    {
-      silent: true
-    }
-  )
+  const { exitCode, stdout, stderr } = await exec.getExecOutput('lim', [
+    'delete',
+    'android',
+    `--region=${instance.region}`,
+    `--organization-id=${instance.organizationId}`,
+    instance.name
+  ])
   core.info(`Deleted instance ${instance.name} in region ${instance.region}`)
   if (exitCode !== 0) {
     throw new Error(

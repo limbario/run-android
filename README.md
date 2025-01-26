@@ -1,7 +1,8 @@
 # Limbar Android Action
 
-Run this action to create a remote Android emulator instance in [Limbar](https://limbar.io) and
-connect to it without having to spend CPU cycles on running an emulator.
+Run this action to create a remote Android emulator instance in
+[Limbar](https://limbar.io) and connect to it without having to spend CPU cycles
+on running an emulator.
 
 ## Inputs
 
@@ -50,19 +51,20 @@ instance.
 
 ## Testing with Maestro Sharding
 
-In [Limbar](https://limbar.io), you can have as many remote Android emulator instances
-as you need without additional cost to quickly finish all the tests your app has.
-A `count` parameter is provided to utilize this so that you don't have to have a separate
-Github Actions job for every Android emulator instance.
+In [Limbar](https://limbar.io), you can have as many remote Android emulator
+instances as you need without additional cost to quickly finish all the tests
+your app has. A `count` parameter is provided to utilize this so that you don't
+have to have a separate GitHub Actions job for every Android emulator instance.
 
-The following Github Actions steps does the following:
-* Provision 20 Android Emulator instances at once,
-* Install your app's APK file to all of them,
-* Run `maestro` with `--shard-split=20` flag so that it utilizes all 20 of the Android
-  emulator instances in parallel.
+The following GitHub Actions steps does the following:
 
-Increase the count as many as your UI tests so that you can iterate on the results quickly
-and save great amount of time.
+- Provision 20 Android Emulator instances at once,
+- Install your app's APK file to all of them,
+- Run `maestro` with `--shard-split=20` flag so that it utilizes all 20 of the
+  Android emulator instances in parallel.
+
+Increase the count as many as your UI tests so that you can iterate on the
+results quickly and save great amount of time.
 
 ```yaml
 - name: Run Android
@@ -92,7 +94,8 @@ and save great amount of time.
     maestro test .maestro --shard-split=20
 ```
 
-You can watch the Android emulator screens while the tests are ongoing by going to [Limbar Console](https://console.limbar.io)
-and get the `lim connect` command to stream the screen to your desktop live.
+You can watch the Android emulator screens while the tests are ongoing by going
+to [Limbar Console](https://console.limbar.io) and get the `lim connect` command
+to stream the screen to your desktop live.
 
-![limbar.io online android emulator instance used in mobile app testing](android-screen-macos.webp "Limbar emulator instance used in mobile app testing")
+![limbar.io online android emulator instance used in mobile app testing](android-screen-macos.webp 'Limbar emulator instance used in mobile app testing')
