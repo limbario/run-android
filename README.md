@@ -1,8 +1,14 @@
-# Limbar Android Action
+# Android Emulator Fleet
 
-Run this action to create a remote Android emulator instance in
-[Limbar](https://limbar.io) and connect to it without having to spend CPU cycles
-on running an emulator.
+Run this action to create unlimited remote Android emulator instances in
+[Limbar](https://limbar.io) so that you can test all your automated UI tests in
+parallel.
+
+<!-- markdownlint-disable MD033 MD013 -->
+<p align="center">
+  <img src="android-screen-macos.webp" alt="limbar.io online android emulator instance used in mobile app testing" title="Limbar emulator instance used in mobile app testing" width="50%">
+</p>
+<!-- markdownlint-enable MD033 MD013 -->
 
 ## Inputs
 
@@ -49,7 +55,7 @@ instance.
   run: ./gradlew connectedCheck --stacktrace
 ```
 
-## Testing with Maestro Sharding
+## Testing with 20 Android Emulators in Parallel
 
 In [Limbar](https://limbar.io), you can have as many remote Android emulator
 instances as you need without additional cost to quickly finish all the tests
@@ -97,5 +103,3 @@ results quickly and save great amount of time.
 You can watch the Android emulator screens while the tests are ongoing by going
 to [Limbar Console](https://console.limbar.io) and get the `lim connect` command
 to stream the screen to your desktop live.
-
-![limbar.io online android emulator instance used in mobile app testing](android-screen-macos.webp 'Limbar emulator instance used in mobile app testing')
