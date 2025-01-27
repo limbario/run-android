@@ -1,8 +1,24 @@
 # Android Emulator Fleet
 
-Run this action to create unlimited remote Android emulator instances in
-[Limbar](https://limbar.io) so that you can test all your automated UI tests in
-parallel.
+Run this action to create remote GPU-accelerated Android emulators in
+[Limbar Cloud](https://limbar.io) so that you can run all your automated UI tests
+in parallel saving you a lot of time. Just like the big clouds, you are never
+charged for concurrency - get as many instances as you need and pay only for
+what you use.
+
+Mainly, this action runs `lim run android --stream=false` as many times
+as specified in `count` argument, which then creates the  Android emulator
+instances, a TCP tunnel for each one of them that makes them all accessible from `adb`.
+
+Once the emulator instance is ready, it will be registered in `adb` and you
+can run all the tools that work with Android emulators, like `maestro`,
+Appium, Behave and the rest.
+
+While the tests are executing, you can watch the Android emulator screens
+live by going to [Limbar Console](https://console.limbar.io) and get the
+`lim connect` command to stream the screen to your desktop live.
+
+See more details in the [Limbar documentation](https://docs.limbar.io/docs).
 
 <!-- markdownlint-disable MD033 MD013 -->
 <p align="center">
