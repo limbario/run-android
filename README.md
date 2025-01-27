@@ -6,25 +6,46 @@ in parallel saving you a lot of time. Just like the big clouds, you are never
 charged for concurrency - get as many instances as you need and pay only for
 what you use.
 
-Mainly, this action runs `lim run android --stream=false` as many times
-as specified in `count` argument, which then creates the  Android emulator
-instances, a TCP tunnel for each one of them that makes them all accessible from `adb`.
+What this action does is run the following as many as the `count` times as
+`count` parameter is given:
+```bash
+lim run android --stream=false
+```
 
-Once the emulator instance is ready, it will be registered in `adb` and you
-can run all the tools that work with Android emulators, like `maestro`,
-Appium, Behave and the rest.
+Then in the next steps, you can use all the commands that work with Android:
+```bash
+# See the list of connected devices.
+adb devices
+
+# Install your app.
+adb install apk/pr-debug.apk
+```
+
+Tools such as `maestro`, `Appium` and `Behave` also recognize the Android
+emulator instances and can run tests on them.
 
 While the tests are executing, you can watch the Android emulator screens
 live by going to [Limbar Console](https://console.limbar.io) and get the
-`lim connect` command to stream the screen to your desktop live.
+`lim connect` command to stream the screen to your desktop live like
+the following:
 
-See more details in the [Limbar documentation](https://docs.limbar.io/docs).
+```bash
+$ lim connect android 5oe2g0ut40
+```
+```
+✓ Checking your token 📜
+✓ Fetching instance information
+✓ Tunnel is ready for adb at localhost:65040 🚇
+⠧ Ready to control the device 🕹️
+```
 
 <!-- markdownlint-disable MD033 MD013 -->
 <p align="center">
   <img src="android-screen-macos.webp" alt="limbar.io online android emulator instance used in mobile app testing" title="Limbar emulator instance used in mobile app testing" width="50%">
 </p>
 <!-- markdownlint-enable MD033 MD013 -->
+
+See more details in the [Limbar documentation](https://docs.limbar.io/docs).
 
 ## Inputs
 
