@@ -9,6 +9,37 @@ tests in parallel saving you a lot of time. Just like the big clouds, you are
 never charged for concurrency - get as many instances as you need and pay only
 for what you use.
 
+## Example usage
+
+The following step will create a new Android emulator instance in the default
+organization and region, and connect to it. Once it's available, which usually
+takes less than a second, you can start all the mobile testing automation tools
+you have, like `maestro`, Appium, Behave and the rest.
+
+Once the GitHub workflow completes, a post-action step will clean up the
+instance.
+
+```yaml
+- name: Run Android
+  uses: limbario/run-android@v0.2.0
+  with:
+    token: ${{ secrets.LIM_TOKEN }}
+
+- name: Run tests
+  run: ./gradlew connectedCheck --stacktrace
+```
+
+Go to [Limbar Console](https://console.limbar.io) and watch while your tests are
+executed.
+
+<!-- markdownlint-disable MD033 MD013 -->
+<p align="center">
+  <img src="android-screen-macos.webp" alt="limbar.io online android emulator instance used in mobile app testing" title="Limbar emulator instance used in mobile app testing" width="50%">
+</p>
+<!-- markdownlint-enable MD033 MD013 -->
+
+## How it works
+
 What this action does is run the following as many as the `count` times as
 `count` parameter is given:
 
@@ -45,58 +76,7 @@ lim connect android 5oe2g0ut40
 ⠧ Ready to control the device 🕹️
 ```
 
-<!-- markdownlint-disable MD033 MD013 -->
-<p align="center">
-  <img src="android-screen-macos.webp" alt="limbar.io online android emulator instance used in mobile app testing" title="Limbar emulator instance used in mobile app testing" width="50%">
-</p>
-<!-- markdownlint-enable MD033 MD013 -->
-
 See more details in the [Limbar documentation](https://docs.limbar.io/docs).
-
-## Inputs
-
-### `token`
-
-**Required** The token to use to authenticate with Limbar.
-
-You can get this token in [Limbar Console](https://console.limbar.io/settings).
-
-### `organization-id`
-
-**Optional** The organization to create the Android instance in. If not given,
-the default organization from the token is used.
-
-You can get this ID in [Limbar Console](https://console.limbar.io/settings) but
-organization tokens already contain it, so in most cases, you don't need to
-supply this.
-
-### `region`
-
-**Optional** The region to create the Android instance in. The closest one is
-chosen if not given.
-
-See [Limbar Console](https://console.limbar.io) for a list of regions or run
-`lim regions`.
-
-## Example usage
-
-The following step will create a new Android emulator instance in the default
-organization and region, and connect to it. Once it's available, which usually
-takes less than a second, you can start all the mobile testing automation tools
-you have, like `maestro`, Appium, Behave and the rest.
-
-Once the GitHub workflow completes, a post-action step will clean up the
-instance.
-
-```yaml
-- name: Run Android
-  uses: limbario/run-android@v0.2.0
-  with:
-    token: ${{ secrets.LIM_TOKEN }}
-
-- name: Run tests
-  run: ./gradlew connectedCheck --stacktrace
-```
 
 ## Testing with 20 Android Emulators in Parallel
 
@@ -146,3 +126,28 @@ results quickly and save great amount of time.
 You can watch the Android emulator screens while the tests are ongoing by going
 to [Limbar Console](https://console.limbar.io) and get the `lim connect` command
 to stream the screen to your desktop live.
+
+## Inputs
+
+### `token`
+
+**Required** The token to use to authenticate with Limbar.
+
+You can get this token in [Limbar Console](https://console.limbar.io/settings).
+
+### `organization-id`
+
+**Optional** The organization to create the Android instance in. If not given,
+the default organization from the token is used.
+
+You can get this ID in [Limbar Console](https://console.limbar.io/settings) but
+organization tokens already contain it, so in most cases, you don't need to
+supply this.
+
+### `region`
+
+**Optional** The region to create the Android instance in. The closest one is
+chosen if not given.
+
+See [Limbar Console](https://console.limbar.io) for a list of regions or run
+`lim regions`.
