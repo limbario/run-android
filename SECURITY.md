@@ -12,7 +12,7 @@ These are the versions supported to get security patches.
 
 To report a vulnerability, either:
 
-1. Report it on Github directly you can follow the procedure described
+1. Report it on GitHub directly you can follow the procedure described
    [here](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability)
    and:
 
@@ -24,7 +24,7 @@ To report a vulnerability, either:
    - Detail the issue, see below for some expamples of info that might be useful
      including.
 
-2. Send an email to `security@limbar.io` detailing the issue, see below for some
+1. Send an email to `security@limbar.io` detailing the issue, see below for some
    examples of info that might be useful including.
 
 The reporter(s) can typically expect a response within 24 hours acknowledging

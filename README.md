@@ -35,10 +35,10 @@ by going to [Limbar Console](https://console.limbar.io) and get the
 following:
 
 ```bash
-$ lim connect android 5oe2g0ut40
+lim connect android 5oe2g0ut40
 ```
 
-```
+```txt
 ✓ Checking your token 📜
 ✓ Fetching instance information
 ✓ Tunnel is ready for adb at localhost:65040 🚇
