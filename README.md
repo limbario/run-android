@@ -21,7 +21,7 @@ instance.
 
 ```yaml
 - name: Run Android
-  uses: limbario/run-android@v0.2.0
+  uses: limbario/run-android@v0.4.6
   with:
     token: ${{ secrets.LIM_TOKEN }}
 
@@ -97,7 +97,7 @@ results quickly and save great amount of time.
 
 ```yaml
 - name: Run Android
-  uses: limbario/run-android@v0.2.0
+  uses: limbario/run-android@v0.4.6
   with:
     token: ${{ secrets.LIM_TOKEN }}
     count: 20
