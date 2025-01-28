@@ -1,5 +1,8 @@
 # Android Emulator Fleet
 
+![Continuous Integration](https://github.com/limbario/android-emulator-fleet/actions/workflows/ci.yml/badge.svg?branch=main)
+![GitHub License](https://img.shields.io/github/license/limbario/android-emulator-fleet)
+
 Run this action to create remote GPU-accelerated Android emulators in
 [Limbar Cloud](https://limbar.io) so that you can run all your automated UI
 tests in parallel saving you a lot of time. Just like the big clouds, you are
