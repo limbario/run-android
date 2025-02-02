@@ -4,7 +4,7 @@ import * as tc from '@actions/tool-cache'
 import { spawn } from 'child_process'
 import * as path from 'path'
 
-const LIM_VERSION = 'v0.9.3'
+const LIM_VERSION = 'v0.10.0'
 const SCRCPY_VERSION = 'v3.1'
 
 process.env.LIM_TOKEN = core.getInput('token')
